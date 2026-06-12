@@ -3,7 +3,7 @@ from data_layer.repository import load_data
 from sidebar.presentation import render_sidebar
 from features.overview.presentation import render_overview
 from features.center.presentation import render_center
-from features.auth.presentation import render_login, render_sidebar_header
+from features.auth.presentation import render_login, render_sidebar_header, render_admin_page
 
 st.set_page_config(
     page_title="KYC Dashboard",
@@ -80,7 +80,7 @@ if role in ("center",) and "*" not in centers:
 # ── Sidebar ──
 all_centers = sorted(students_df["Primary Center"].unique().tolist())
 render_sidebar_header()
-page, selected_center, course_filter, source_filter, gender_filter, age_filter = render_sidebar(students_df, all_centers)
+page, selected_center, course_filter, source_filter, gender_filter, age_filter = render_sidebar(students_df, all_centers, user)
 
 # ── Filters ──
 filtered_students = students_df.copy()
@@ -98,6 +98,8 @@ filtered_multi = multi_df[multi_df["Student ID"].isin(valid_ids)]
 
 if page == "📈 Tổng quan":
     render_overview(filtered_students, filtered_multi)
+elif page == "🔧 Quản lý Users":
+    render_admin_page()
 else:
     render_center(filtered_students, filtered_multi, selected_center)
 

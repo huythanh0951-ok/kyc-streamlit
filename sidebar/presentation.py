@@ -1,12 +1,17 @@
 import streamlit as st
 
 
-def render_sidebar(students_df, center_list):
+def render_sidebar(students_df, center_list, user=None):
     st.sidebar.markdown(
         '<div style="font-size:23px;font-weight:700;color:#1A3C5E;text-align:center;'
         'padding:8px 0 4px;">KYC DASHBOARD</div>', unsafe_allow_html=True)
 
-    page = st.sidebar.radio("Chọn trang", ["📈 Tổng quan", "🏢 Theo Center"])
+    pages = ["📈 Tổng quan", "🏢 Theo Center"]
+    role = (user or {}).get("role", "")
+    if role == "admin":
+        pages.append("🔧 Quản lý Users")
+
+    page = st.sidebar.radio("Chọn trang", pages)
     selected_center = None
 
     if page == "🏢 Theo Center":
