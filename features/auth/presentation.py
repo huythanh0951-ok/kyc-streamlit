@@ -76,8 +76,13 @@ def render_admin_page():
 
     with col_left:
         st.markdown("**Thêm / Sửa User**")
-        default_user = st.session_state.edit_user if st.session_state.edit_user else ""
-        new_user = st.text_input("Username", value=default_user, key="admin_new_user")
+        default_user = st.session_state.edit_user or ""
+        # Dùng session_state thay vì value= để force update
+        if "admin_new_user_val" not in st.session_state:
+            st.session_state.admin_new_user_val = ""
+        if default_user and st.session_state.admin_new_user_val != default_user:
+            st.session_state.admin_new_user_val = default_user
+        new_user = st.text_input("Username", key="admin_new_user_val")
         new_pass = st.text_input("Password", type="password", key="admin_new_pass",
                                  placeholder="Nhập password mới" if default_user else "")
         new_role = st.selectbox("Role", ["admin", "bod", "center"], key="admin_new_role")
@@ -102,6 +107,7 @@ def render_admin_page():
                 if add_user(new_user, new_pass, new_role, centers_val):
                     st.success(f"Đã lưu user '{new_user}'!")
                     st.session_state.edit_user = None
+                    st.session_state.admin_new_user_val = ""
                     st.rerun()
                 else:
                     st.error("Lỗi khi lưu user!")
