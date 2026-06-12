@@ -10,6 +10,9 @@ def render_sidebar(students_df, center_list, user=None):
     role = (user or {}).get("role", "")
     if role == "admin":
         pages.append("🔧 Quản lý Users")
+    # Center user: đổi label tổng quan
+    if role == "center":
+        pages[0] = "📈 Tổng quan các trung tâm được phân quyền"
 
     page = st.sidebar.radio("Chọn trang", pages)
     selected_center = None
