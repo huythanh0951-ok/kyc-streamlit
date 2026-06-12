@@ -68,12 +68,18 @@ def render_admin_page():
 
     st.markdown("<h2 style='color:#1A3C5E;'>🔧 Quản lý Users</h2>", unsafe_allow_html=True)
 
+    # Pre-fill from edit button
+    if "edit_user" not in st.session_state:
+        st.session_state.edit_user = None
+
     col_left, col_right = st.columns([1, 1])
 
     with col_left:
         st.markdown("**Thêm / Sửa User**")
-        new_user = st.text_input("Username", key="admin_new_user")
-        new_pass = st.text_input("Password", type="password", key="admin_new_pass")
+        default_user = st.session_state.edit_user if st.session_state.edit_user else ""
+        new_user = st.text_input("Username", value=default_user, key="admin_new_user")
+        new_pass = st.text_input("Password", type="password", key="admin_new_pass",
+                                 placeholder="Nhập password mới" if default_user else "")
         new_role = st.selectbox("Role", ["admin", "bod", "center"], key="admin_new_role")
 
         st.markdown("**Phân quyền Trung tâm** *(bắt buộc với role center)*")
@@ -95,6 +101,7 @@ def render_admin_page():
                 centers_val = "*" if (select_all or new_role in ("admin", "bod")) else ",".join(selected_centers)
                 if add_user(new_user, new_pass, new_role, centers_val):
                     st.success(f"Đã lưu user '{new_user}'!")
+                    st.session_state.edit_user = None
                     st.rerun()
                 else:
                     st.error("Lỗi khi lưu user!")
@@ -109,11 +116,15 @@ def render_admin_page():
             else:
                 centers_display = str(raw_centers)
             plain_pw = info.get("plain_password", "***")
-            c1, c2 = st.columns([4, 1])
+            c1, c2, c3 = st.columns([4, 1, 1])
             c1.markdown(f"**{u}** — `{info['role']}` — `{plain_pw}` — *{centers_display}*")
-            if c2.button("Xóa", key=f"del_{u}"):
+            if c2.button("Sửa", key=f"edit_{u}"):
+                st.session_state.edit_user = u
+                st.rerun()
+            if c3.button("Xóa", key=f"del_{u}"):
                 if u == "admin":
                     st.error("Không thể xóa admin!")
                 else:
                     remove_user(u)
+                    st.session_state.edit_user = None
                     st.rerun()
