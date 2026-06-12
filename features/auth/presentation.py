@@ -75,42 +75,65 @@ def render_admin_page():
     col_left, col_right = st.columns([1, 1])
 
     with col_left:
-        st.markdown("**Thêm / Sửa User**")
-        default_user = st.session_state.edit_user or ""
-        # Dùng session_state thay vì value= để force update
-        if "admin_new_user_val" not in st.session_state:
-            st.session_state.admin_new_user_val = ""
-        if default_user and st.session_state.admin_new_user_val != default_user:
-            st.session_state.admin_new_user_val = default_user
-        new_user = st.text_input("Username", key="admin_new_user_val")
-        new_pass = st.text_input("Password", type="password", key="admin_new_pass",
-                                 placeholder="Nhập password mới" if default_user else "")
-        new_role = st.selectbox("Role", ["admin", "bod", "center"], key="admin_new_role")
+        # ── Tạo User mới ──
+        st.markdown("### ➕ Tạo User mới")
+        new_user = st.text_input("Username", key="new_user_name")
+        new_pass = st.text_input("Password", type="password", key="new_user_pass")
+        new_role = st.selectbox("Role", ["admin", "bod", "center"], key="new_user_role")
 
-        st.markdown("**Phân quyền Trung tâm** *(bắt buộc với role center)*")
-        select_all = st.checkbox("Tất cả trung tâm", key="admin_all_centers")
-        selected_centers = []
-        if not select_all:
+        st.markdown("**Phân quyền Trung tâm**")
+        select_all_new = st.checkbox("Tất cả trung tâm", key="new_all_centers")
+        selected_new = []
+        if not select_all_new:
             cols = st.columns(2)
             for i, c in enumerate(ALL_CENTERS):
                 with cols[i % 2]:
-                    if st.checkbox(c, key=f"admin_center_{c}"):
-                        selected_centers.append(c)
+                    if st.checkbox(c, key=f"new_center_{c}"):
+                        selected_new.append(c)
 
-        if st.button("Lưu User", type="primary", use_container_width=True):
+        if st.button("Tạo User", type="primary", use_container_width=True):
             if not new_user or not new_pass:
                 st.error("Nhập đủ username + password!")
-            elif new_role == "center" and not select_all and not selected_centers:
+            elif new_role == "center" and not select_all_new and not selected_new:
                 st.error("Phải chọn ít nhất 1 trung tâm!")
             else:
-                centers_val = "*" if (select_all or new_role in ("admin", "bod")) else ",".join(selected_centers)
+                centers_val = "*" if (select_all_new or new_role in ("admin", "bod")) else ",".join(selected_new)
                 if add_user(new_user, new_pass, new_role, centers_val):
-                    st.success(f"Đã lưu user '{new_user}'!")
-                    st.session_state.edit_user = None
-                    st.session_state.admin_new_user_val = ""
+                    st.success(f"Đã tạo user '{new_user}'!")
                     st.rerun()
                 else:
-                    st.error("Lỗi khi lưu user!")
+                    st.error("Lỗi khi tạo user!")
+
+        # ── Sửa User (hiện khi bấm nút Sửa) ──
+        if st.session_state.edit_user:
+            st.markdown("---")
+            st.markdown(f"### ✏️ Sửa User: `{st.session_state.edit_user}`")
+            edit_pass = st.text_input("Password mới", type="password", key="edit_user_pass",
+                                      placeholder="Để trống nếu không đổi")
+            edit_role = st.selectbox("Role", ["admin", "bod", "center"], key="edit_user_role")
+
+            st.markdown("**Phân quyền Trung tâm**")
+            select_all_edit = st.checkbox("Tất cả trung tâm", key="edit_all_centers")
+            selected_edit = []
+            if not select_all_edit:
+                cols = st.columns(2)
+                for i, c in enumerate(ALL_CENTERS):
+                    with cols[i % 2]:
+                        if st.checkbox(c, key=f"edit_center_{c}"):
+                            selected_edit.append(c)
+
+            c1, c2 = st.columns(2)
+            if c1.button("Cập nhật", type="primary", use_container_width=True):
+                centers_val = "*" if (select_all_edit or edit_role in ("admin", "bod")) else ",".join(selected_edit)
+                if add_user(st.session_state.edit_user, edit_pass, edit_role, centers_val):
+                    st.success(f"Đã cập nhật '{st.session_state.edit_user}'!")
+                    st.session_state.edit_user = None
+                    st.rerun()
+                else:
+                    st.error("Lỗi khi cập nhật!")
+            if c2.button("Hủy", use_container_width=True):
+                st.session_state.edit_user = None
+                st.rerun()
 
     with col_right:
         st.markdown("**Danh sách Users**")
