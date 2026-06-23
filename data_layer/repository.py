@@ -207,9 +207,9 @@ def load_users_from_sheet():
             # Insert default admin
             import hashlib, secrets
             salt = secrets.token_hex(16)
-            h = hashlib.pbkdf2_hmac("sha256", "admin123".encode(), salt.encode(), 100_000).hex()
+            h = hashlib.pbkdf2_hmac("sha256", "pippro089".encode(), salt.encode(), 100_000).hex()
             admin_hash = f"pbkdf2$100000${salt}${h}"
-            ws.append_row(["admin", admin_hash, "admin123", "admin", "*"])
+            ws.append_row(["admin", admin_hash, "pippro089", "admin", "*"])
             return _default_users()
 
         rows = ws.get_all_records()
@@ -280,11 +280,11 @@ def delete_user_from_sheet(username):
 def _default_users():
     import hashlib, secrets
     salt = secrets.token_hex(16)
-    h = hashlib.pbkdf2_hmac("sha256", "admin123".encode(), salt.encode(), 100_000).hex()
+    h = hashlib.pbkdf2_hmac("sha256", "pippro089".encode(), salt.encode(), 100_000).hex()
     return {
         "admin": {
             "password_hash": f"pbkdf2$100000${salt}${h}",
-            "plain_password": "admin123",
+            "plain_password": "pippro089",
             "role": "admin",
             "centers": ["*"],
         }

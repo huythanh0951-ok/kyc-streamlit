@@ -4,6 +4,8 @@ from sidebar.presentation import render_sidebar
 from features.overview.presentation import render_overview
 from features.center.presentation import render_center
 from features.auth.presentation import render_login, render_sidebar_header, render_admin_page
+from dotenv import load_dotenv
+load_dotenv()
 
 st.set_page_config(
     page_title="KYC Dashboard",
