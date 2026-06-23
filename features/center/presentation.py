@@ -111,7 +111,7 @@ def render_center(students_all, multi_all, center_name):
 
 def _render_action_points(center_name: str):
     """Hiển thị & edit action points cho center"""
-    from data_layer.repository import load_action_points, save_action_points
+    from data_layer.repository import load_action_points, save_action_points, _user_sheets_id
 
     role = (st.session_state.get("user") or {}).get("role", "")
     can_edit = role in ("admin", "bod")
@@ -129,12 +129,13 @@ def _render_action_points(center_name: str):
             c1, c2 = st.columns([1, 4])
             if c1.button("Lưu", key=f"ap_save_{center_name}", type="primary"):
                 saved = new_text if new_text and new_text != 0 else text
-                if save_action_points(center_name, saved):
+                ok = save_action_points(center_name, saved)
+                if ok:
                     st.success("Đã lưu!")
                     st.session_state[edit_state_key] = False
                     st.rerun()
                 else:
-                    st.error("Lưu thất bại.")
+                    st.error(f"Lưu thất bại. sheets_id={_user_sheets_id()}, text_len={len(saved)}")
             if c2.button("Hủy", key=f"ap_cancel_{center_name}"):
                 st.session_state[edit_state_key] = False
                 st.rerun()

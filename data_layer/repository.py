@@ -354,5 +354,7 @@ def save_action_points(center_name: str, text: str) -> bool:
                 return True
         ws.append_row([center_name, text])
         return True
-    except Exception:
+    except Exception as e:
+        import sys
+        print(f"[save_action_points] Error: {e}", file=sys.stderr)
         return False
