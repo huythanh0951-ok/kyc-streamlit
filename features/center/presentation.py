@@ -161,38 +161,38 @@ def _render_action_points(center_name: str):
 
 
 def _rich_text_editor(key: str, initial_html: str):
-    """Rich text editor using Quill.js. Trả về HTML khi người dùng thay đổi."""
+    """Rich text editor using Quill.js. Trả về HTML."""
+    safe_id = key.replace(" ", "_").replace("-", "_")
     escaped = initial_html.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
     html_code = f"""
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <div id="{safe_id}" style="height:220px;"></div>
     <script>
-    window.onerror = function(msg) {{ console.error('Quill error:', msg); }};
-    </script>
-    <div id="editor_{key}" style="height:220px;"></div>
-    <script>
-    function sendValue() {{
-        var html = quill.root.innerHTML;
-        window.parent.postMessage(
-            {{isStreamlitMessage: true, type: 'streamlit:setComponentValue', value: html, dataType: 'json'}},
-            '*'
-        );
-    }}
-    var quill = new Quill('#editor_{key}', {{
-        theme: 'snow',
-        modules: {{
-            toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{{ 'color': [] }}, {{ 'background': [] }}],
-                [{{ 'list': 'bullet' }}],
-                ['clean']
-            ]
+    (function() {{
+        var el = document.getElementById('{safe_id}');
+        if (!el) {{ console.error('Quill: container #{safe_id} not found'); return; }}
+        var quill = new Quill('#{safe_id}', {{
+            theme: 'snow',
+            modules: {{
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{{ 'color': [] }}, {{ 'background': [] }}],
+                    [{{ 'list': 'bullet' }}],
+                    ['clean']
+                ]
+            }}
+        }});
+        quill.root.innerHTML = `{escaped}`;
+        function sendValue() {{
+            window.parent.postMessage(
+                {{isStreamlitMessage: true, type: 'streamlit:setComponentValue', value: quill.root.innerHTML, dataType: 'json'}},
+                '*'
+            );
         }}
-    }});
-    quill.root.innerHTML = `{escaped}`;
-    quill.on('text-change', sendValue);
-    // Initial send
-    sendValue();
+        quill.on('text-change', sendValue);
+        sendValue();
+    }})();
     </script>
     """
     return st.components.v1.html(html_code, height=300)
