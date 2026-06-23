@@ -8,6 +8,8 @@ def render_sidebar(students_df, center_list, user=None):
 
     pages = ["▸ Tổng quan", "▹ Theo Center"]
     role = (user or {}).get("role", "")
+    if role == "center":
+        pages = ["▹ Theo Center"]
     if role == "admin":
         pages.append("⚙ Quản lý Users")
 
