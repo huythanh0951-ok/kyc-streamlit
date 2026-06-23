@@ -160,8 +160,14 @@ def _generate_action_points(students, multi):
         })
 
     # Parent job coverage
-    job_known = students[students["parent_job"].notna() & (students["parent_job"] != "Không có thông tin")]["Student ID"].nunique()
-    job_rate = job_known / total
+    ph1_has = students["Parent 1 Name"].notna() & students["Parent 1 Job"].notna()
+    # Lọc noise jobs
+    noise = {"tổng", "tong", "total", "khác", "khong", "-", "--", "", "0"}
+    ph1_valid = ph1_has & ~students["Parent 1 Job"].astype(str).str.strip().str.lower().isin(noise)
+    ph2_has = students["Parent 2 Name"].notna() & students["Parent 2 Job"].notna()
+    ph2_valid = ph2_has & ~students["Parent 2 Job"].astype(str).str.strip().str.lower().isin(noise)
+    ph_rows = ph1_valid | ph2_valid
+    job_rate = ph_rows.sum() / total
     if job_rate < 0.5:
         points.append({
             "title": "Thu thập nghề nghiệp phụ huynh",
@@ -188,8 +194,8 @@ def _generate_action_points(students, multi):
         })
 
     # School coverage
-    school_known = students[students["school"].notna() & (students["school"] != "Không có thông tin")]["Student ID"].nunique()
-    school_rate = school_known / total
+    school_known = students["School Name"].notna() & (students["School Name"].str.strip().str.lower() != "trường .") & ~students["School Name"].astype(str).str.strip().str.lower().isin(["", "-", "--", "chưa có", "không có"])
+    school_rate = school_known.sum() / total
     if school_rate < 0.5:
         points.append({
             "title": "Cập nhật thông tin trường học",
