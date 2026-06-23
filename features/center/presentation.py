@@ -115,27 +115,27 @@ def _render_action_points(center_name: str):
 
     role = (st.session_state.get("user") or {}).get("role", "")
     can_edit = role in ("admin", "bod")
-    edit_key = f"ap_edit_{center_name}"
+    edit_state_key = f"ap_editing_{center_name}"
+    btn_key = f"ap_btn_{center_name}"
 
-    # Init session state
-    if edit_key not in st.session_state:
-        st.session_state[edit_key] = False
+    if edit_state_key not in st.session_state:
+        st.session_state[edit_state_key] = False
 
     text = load_action_points(center_name)
 
     if can_edit:
-        if st.session_state[edit_key]:
+        if st.session_state[edit_state_key]:
             new_text = st.text_area("Nhập action points:", value=text, height=120, key=f"ap_text_{center_name}")
             c1, c2 = st.columns([1, 4])
             if c1.button("Lưu", key=f"ap_save_{center_name}", type="primary"):
                 if save_action_points(center_name, new_text):
                     st.success("Đã lưu!")
-                    st.session_state[edit_key] = False
+                    st.session_state[edit_state_key] = False
                     st.rerun()
                 else:
                     st.error("Lưu thất bại.")
             if c2.button("Hủy", key=f"ap_cancel_{center_name}"):
-                st.session_state[edit_key] = False
+                st.session_state[edit_state_key] = False
                 st.rerun()
         else:
             if text.strip():
@@ -144,8 +144,8 @@ def _render_action_points(center_name: str):
                             unsafe_allow_html=True)
             else:
                 st.caption("Chưa có action points.")
-            if st.button("Chỉnh sửa Action Points", key=edit_key):
-                st.session_state[edit_key] = True
+            if st.button("Chỉnh sửa Action Points", key=btn_key):
+                st.session_state[edit_state_key] = True
                 st.rerun()
     else:
         if text.strip():
