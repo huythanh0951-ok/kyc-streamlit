@@ -128,7 +128,8 @@ def _render_action_points(center_name: str):
             new_text = _rich_text_editor(f"ap_text_{center_name}", text)
             c1, c2 = st.columns([1, 4])
             if c1.button("Lưu", key=f"ap_save_{center_name}", type="primary"):
-                if save_action_points(center_name, new_text or text):
+                saved = new_text if new_text and new_text != 0 else text
+                if save_action_points(center_name, saved):
                     st.success("Đã lưu!")
                     st.session_state[edit_state_key] = False
                     st.rerun()
@@ -140,9 +141,9 @@ def _render_action_points(center_name: str):
         else:
             if text.strip():
                 st.markdown(
-                    f"""<div style="background:linear-gradient(135deg, #FFF8E1, #FFF3CD);border-radius:12px;
-                    padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 2px 6px rgba(255,109,1,0.12);
-                    font-size:14px;color:#333;line-height:1.8;white-space:pre-wrap;">{text}</div>""",
+                    f"""<div style="background:white;border-radius:10px;
+                    padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 1px 3px rgba(0,0,0,0.06);
+                    font-size:14px;color:#333;line-height:1.8;">{text}</div>""",
                     unsafe_allow_html=True,
                 )
             else:
@@ -153,8 +154,8 @@ def _render_action_points(center_name: str):
     else:
         if text.strip():
             st.markdown(
-                f"""<div style="background:linear-gradient(135deg, #FFF8E1, #FFF3CD);border-radius:12px;
-                padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 2px 6px rgba(255,109,1,0.12);
+                f"""<div style="background:white;border-radius:10px;
+                padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 1px 3px rgba(0,0,0,0.06);
                 font-size:14px;color:#333;line-height:1.8;">{text}</div>""",
                 unsafe_allow_html=True,
             )
@@ -187,7 +188,7 @@ def _rich_text_editor(key: str, initial_html: str):
         quill.root.innerHTML = `{escaped}`;
         function sendValue() {{
             window.parent.postMessage(
-                {{isStreamlitMessage: true, type: 'streamlit:setComponentValue', value: quill.root.innerHTML, dataType: 'json'}},
+                {{isStreamlitMessage: true, type: 'streamlit:setComponentValue', value: quill.root.innerHTML}},
                 '*'
             );
         }}
