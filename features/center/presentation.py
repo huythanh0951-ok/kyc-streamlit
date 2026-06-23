@@ -176,9 +176,10 @@ def _rich_text_editor(key: str, initial_html: str):
             theme: 'snow',
             modules: {{
                 toolbar: [
+                    [{{ 'font': [] }}, {{ 'size': ['small', false, 'large', 'huge'] }}],
                     ['bold', 'italic', 'underline'],
                     [{{ 'color': [] }}, {{ 'background': [] }}],
-                    [{{ 'list': 'bullet' }}],
+                    [{{ 'list': 'bullet' }}, {{ 'align': [] }}],
                     ['clean']
                 ]
             }}
