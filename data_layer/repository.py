@@ -168,6 +168,18 @@ def _secret(key, default=""):
         return os.environ.get(key, default)
 
 
+def _fix_pem(pk: str) -> str:
+    """Auto-fix PEM key: xử lý literal \n hoặc thiếu newline"""
+    if not pk:
+        return pk
+    if "\\n" in pk:
+        pk = pk.replace("\\n", "\n")
+    # Đảm bảo key bắt đầu/kết thúc đúng format
+    if "-----BEGIN" not in pk:
+        pk = "-----BEGIN PRIVATE KEY-----\n" + pk + "\n-----END PRIVATE KEY-----"
+    return pk
+
+
 def _get_gspread_client():
     """Kết nối gspread với service account từ env vars"""
     import os
@@ -178,7 +190,7 @@ def _get_gspread_client():
         "type": _secret("GCP_TYPE", "service_account"),
         "project_id": _secret("GCP_PROJECT_ID", ""),
         "private_key_id": _secret("GCP_PRIVATE_KEY_ID", ""),
-        "private_key": _secret("GCP_PRIVATE_KEY", ""),
+        "private_key": _fix_pem(_secret("GCP_PRIVATE_KEY", "")),
         "client_email": _secret("GCP_CLIENT_EMAIL", ""),
         "client_id": _secret("GCP_CLIENT_ID", ""),
         "auth_uri": _secret("GCP_AUTH_URI", "https://accounts.google.com/o/oauth2/auth"),
