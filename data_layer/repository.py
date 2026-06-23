@@ -127,28 +127,11 @@ def _read_raw_wide():
     """Đọc raw wide format từ Google Sheets hoặc fallback CSV"""
     import os
 
-    # ── Try Google Sheets (qua env vars trên HF Docker Spaces) ──
+    # ── Try Google Sheets ──
     try:
-        sheets_id = os.getenv("SHEETS_ID")
+        sheets_id = _secret("SHEETS_ID")
         if sheets_id:
-            import gspread
-            from google.oauth2.service_account import Credentials
-
-            # Đọc từng field riêng lẻ, không JSON → không lỗi format!
-            creds_info = {
-                "type": os.getenv("GCP_TYPE", "service_account"),
-                "project_id": os.getenv("GCP_PROJECT_ID", ""),
-                "private_key_id": os.getenv("GCP_PRIVATE_KEY_ID", ""),
-                "private_key": (os.getenv("GCP_PRIVATE_KEY", "")).replace("\\n", "\n"),
-                "client_email": os.getenv("GCP_CLIENT_EMAIL", ""),
-                "client_id": os.getenv("GCP_CLIENT_ID", ""),
-                "auth_uri": os.getenv("GCP_AUTH_URI", "https://accounts.google.com/o/oauth2/auth"),
-                "token_uri": os.getenv("GCP_TOKEN_URI", "https://oauth2.googleapis.com/token"),
-            }
-
-            scope = ["https://www.googleapis.com/auth/spreadsheets"]
-            creds = Credentials.from_service_account_info(creds_info, scopes=scope)
-            client = gspread.authorize(creds)
+            client = _get_gspread_client()
             sheet = client.open_by_key(sheets_id)
             ws = sheet.sheet1
             rows = ws.get_all_records()
@@ -176,6 +159,15 @@ def _read_raw_wide():
 
 # ── User management (Google Sheets) ──
 
+def _secret(key, default=""):
+    """Đọc secret từ st.secrets (Streamlit Cloud) → fallback os.environ"""
+    import os
+    try:
+        return st.secrets.get(key, os.environ.get(key, default))
+    except Exception:
+        return os.environ.get(key, default)
+
+
 def _get_gspread_client():
     """Kết nối gspread với service account từ env vars"""
     import os
@@ -183,14 +175,14 @@ def _get_gspread_client():
     from google.oauth2.service_account import Credentials
 
     creds_info = {
-        "type": os.getenv("GCP_TYPE", "service_account"),
-        "project_id": os.getenv("GCP_PROJECT_ID", ""),
-        "private_key_id": os.getenv("GCP_PRIVATE_KEY_ID", ""),
-        "private_key": (os.getenv("GCP_PRIVATE_KEY", "")).replace("\\n", "\n"),
-        "client_email": os.getenv("GCP_CLIENT_EMAIL", ""),
-        "client_id": os.getenv("GCP_CLIENT_ID", ""),
-        "auth_uri": os.getenv("GCP_AUTH_URI", "https://accounts.google.com/o/oauth2/auth"),
-        "token_uri": os.getenv("GCP_TOKEN_URI", "https://oauth2.googleapis.com/token"),
+        "type": _secret("GCP_TYPE", "service_account"),
+        "project_id": _secret("GCP_PROJECT_ID", ""),
+        "private_key_id": _secret("GCP_PRIVATE_KEY_ID", ""),
+        "private_key": _secret("GCP_PRIVATE_KEY", "").replace("\\n", "\n"),
+        "client_email": _secret("GCP_CLIENT_EMAIL", ""),
+        "client_id": _secret("GCP_CLIENT_ID", ""),
+        "auth_uri": _secret("GCP_AUTH_URI", "https://accounts.google.com/o/oauth2/auth"),
+        "token_uri": _secret("GCP_TOKEN_URI", "https://oauth2.googleapis.com/token"),
     }
     scope = ["https://www.googleapis.com/auth/spreadsheets"]
     creds = Credentials.from_service_account_info(creds_info, scopes=scope)
@@ -199,9 +191,8 @@ def _get_gspread_client():
 
 def load_users_from_sheet():
     """Đọc tab Users từ Google Sheet, fallback default admin"""
-    import os
     try:
-        sheets_id = os.getenv("SHEETS_ID")
+        sheets_id = _secret("SHEETS_ID")
         if not sheets_id:
             return _default_users()
         client = _get_gspread_client()
@@ -242,8 +233,7 @@ def load_users_from_sheet():
 
 def save_user_to_sheet(username, password_hash, plain_password, role, centers):
     """Thêm hoặc cập nhật user trong sheet"""
-    import os
-    sheets_id = os.getenv("SHEETS_ID")
+    sheets_id = _secret("SHEETS_ID")
     if not sheets_id:
         return False
     client = _get_gspread_client()
@@ -273,8 +263,7 @@ def save_user_to_sheet(username, password_hash, plain_password, role, centers):
 
 def delete_user_from_sheet(username):
     """Xóa user khỏi sheet"""
-    import os
-    sheets_id = os.getenv("SHEETS_ID")
+    sheets_id = _secret("SHEETS_ID")
     if not sheets_id:
         return False
     client = _get_gspread_client()
