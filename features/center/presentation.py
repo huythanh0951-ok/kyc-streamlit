@@ -125,7 +125,7 @@ def _render_action_points(center_name: str):
 
     if can_edit:
         if st.session_state[edit_state_key]:
-            new_text = st.text_area("Nhập action points (hỗ trợ Markdown: **đậm**, *nghiêng*, # tiêu đề, - danh sách):", value=text, height=200, key=f"ap_text_{center_name}")
+            new_text = st.text_area("Nhập action points (xuống dòng tự nhiên, có thể dùng **đậm**, - danh sách):", value=text, height=200, key=f"ap_text_{center_name}")
             c1, c2 = st.columns([1, 4])
             if c1.button("Lưu", key=f"ap_save_{center_name}", type="primary"):
                 if save_action_points(center_name, new_text):
@@ -139,8 +139,12 @@ def _render_action_points(center_name: str):
                 st.rerun()
         else:
             if text.strip():
-                with st.container(border=True):
-                    st.markdown(text)
+                st.markdown(
+                    f"""<div style="background:linear-gradient(135deg, #FFF8E1, #FFF3CD);border-radius:12px;
+                    padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 2px 6px rgba(255,109,1,0.12);
+                    font-size:14px;color:#333;line-height:1.8;white-space:pre-wrap;">{text}</div>""",
+                    unsafe_allow_html=True,
+                )
             else:
                 st.caption("Chưa có action points.")
             if st.button("Chỉnh sửa Action Points", key=btn_key):
@@ -148,5 +152,9 @@ def _render_action_points(center_name: str):
                 st.rerun()
     else:
         if text.strip():
-            with st.container(border=True):
-                st.markdown(text)
+            st.markdown(
+                f"""<div style="background:linear-gradient(135deg, #FFF8E1, #FFF3CD);border-radius:12px;
+                padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 2px 6px rgba(255,109,1,0.12);
+                font-size:14px;color:#333;line-height:1.8;white-space:pre-wrap;">{text}</div>""",
+                unsafe_allow_html=True,
+            )
