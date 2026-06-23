@@ -125,13 +125,20 @@ def _render_action_points(center_name: str):
 
     if can_edit:
         if st.session_state[edit_state_key]:
-            _rich_text_editor(f"ap_text_{center_name}", text)
-            ta_key = f"ap_text_{center_name}_ta".replace(" ", "_").replace("-", "_")
+            new_text = st.text_area(
+                "Nhập action points (HTML: <b>đậm</b>, <span style='color:red'>đỏ</span>, <ul><li>mục</li></ul>):",
+                value=text, height=250, key=f"ap_text_{center_name}"
+            )
+            # Preview
+            if new_text.strip():
+                st.caption("Xem trước:")
+                st.markdown(f"""<div style="background:white;border-radius:10px;
+                    padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 1px 3px rgba(0,0,0,0.06);
+                    font-size:14px;color:#333;line-height:1.8;">{new_text}</div>""",
+                    unsafe_allow_html=True)
             c1, c2 = st.columns([1, 4])
             if c1.button("Lưu", key=f"ap_save_{center_name}", type="primary"):
-                saved = st.session_state.get(ta_key, text)
-                ok = save_action_points(center_name, saved)
-                if ok:
+                if save_action_points(center_name, new_text):
                     st.success("Đã lưu!")
                     st.session_state[edit_state_key] = False
                     st.rerun()
@@ -161,58 +168,3 @@ def _render_action_points(center_name: str):
                 font-size:14px;color:#333;line-height:1.8;">{text}</div>""",
                 unsafe_allow_html=True,
             )
-
-
-def _rich_text_editor(key: str, initial_html: str):
-    """Rich text editor using Quill.js. Syncs HTML to st.session_state via JS bridge."""
-    safe_id = key.replace(" ", "_").replace("-", "_")
-    escaped = initial_html.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
-    
-    ta_key = f"{safe_id}_ta"
-    
-    # Ensure session_state key exists
-    if ta_key not in st.session_state:
-        st.session_state[ta_key] = initial_html
-    
-    html_code = f"""
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <div id="{safe_id}" style="height:220px;"></div>
-    <script>
-    (function() {{
-        var el = document.getElementById('{safe_id}');
-        if (!el) return;
-        var quill = new Quill('#{safe_id}', {{
-            theme: 'snow',
-            modules: {{
-                toolbar: [
-                    [{{ 'font': [] }}, {{ 'size': ['small', false, 'large', 'huge'] }}],
-                    ['bold', 'italic', 'underline'],
-                    [{{ 'color': [] }}, {{ 'background': [] }}],
-                    [{{ 'list': 'bullet' }}, {{ 'align': [] }}],
-                    ['clean']
-                ]
-            }}
-        }});
-        quill.root.innerHTML = `{escaped}`;
-        function sync() {{
-            var pdoc = window.parent.document;
-            // Find ALL textarea elements in Streamlit app
-            var allTas = pdoc.querySelectorAll('textarea');
-            // Write to the LAST one (our hidden bridge)
-            if (allTas.length > 0) {{
-                var ta = allTas[allTas.length - 1];
-                var nativeSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
-                nativeSetter.call(ta, quill.root.innerHTML);
-                ta.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                ta.dispatchEvent(new Event('change', {{ bubbles: true }}));
-            }}
-        }}
-        quill.on('text-change', sync);
-        setTimeout(sync, 300);
-    }})();
-    </script>
-    """
-    st.components.v1.html(html_code, height=300)
-    # Hidden bridge: Streamlit text_area for session_state sync
-    st.text_area("", value=st.session_state[ta_key], key=ta_key, label_visibility="collapsed", height=1)
