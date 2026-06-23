@@ -307,3 +307,52 @@ def _default_users():
             "centers": ["*"],
         }
     }
+
+
+# ── Action Points ──
+
+def load_action_points(center_name: str) -> str:
+    """Đọc action points của 1 center từ sheet. Trả về text hoặc ''"""
+    sheets_id = _user_sheets_id()
+    if not sheets_id:
+        return ""
+    try:
+        client = _get_gspread_client()
+        sheet = client.open_by_key(sheets_id)
+        try:
+            ws = sheet.worksheet("ActionPoints")
+        except:
+            ws = sheet.add_worksheet("ActionPoints", 10, 2)
+            ws.append_row(["center_name", "action_text"])
+            return ""
+        rows = ws.get_all_records()
+        for r in rows:
+            if str(r.get("center_name", "")).strip() == center_name:
+                return str(r.get("action_text", ""))
+        return ""
+    except Exception:
+        return ""
+
+
+def save_action_points(center_name: str, text: str) -> bool:
+    """Lưu action points cho 1 center. Tạo mới hoặc update"""
+    sheets_id = _user_sheets_id()
+    if not sheets_id:
+        return False
+    try:
+        client = _get_gspread_client()
+        sheet = client.open_by_key(sheets_id)
+        try:
+            ws = sheet.worksheet("ActionPoints")
+        except:
+            ws = sheet.add_worksheet("ActionPoints", 10, 2)
+            ws.append_row(["center_name", "action_text"])
+        rows = ws.get_all_records()
+        for i, r in enumerate(rows, start=2):
+            if str(r.get("center_name", "")).strip() == center_name:
+                ws.update(f"B{i}", [[text]])
+                return True
+        ws.append_row([center_name, text])
+        return True
+    except Exception:
+        return False
