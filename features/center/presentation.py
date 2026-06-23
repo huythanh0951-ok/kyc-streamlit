@@ -111,7 +111,7 @@ def render_center(students_all, multi_all, center_name):
 
 def _render_action_points(center_name: str):
     """Hiển thị & edit action points cho center"""
-    from data_layer.repository import load_action_points, save_action_points, _user_sheets_id
+    from data_layer.repository import load_action_points, save_action_points
 
     role = (st.session_state.get("user") or {}).get("role", "")
     can_edit = role in ("admin", "bod")
@@ -125,17 +125,18 @@ def _render_action_points(center_name: str):
 
     if can_edit:
         if st.session_state[edit_state_key]:
-            new_text = _rich_text_editor(f"ap_text_{center_name}", text)
+            _rich_text_editor(f"ap_text_{center_name}", text)
+            ta_key = f"ap_text_{center_name}_ta".replace(" ", "_").replace("-", "_")
             c1, c2 = st.columns([1, 4])
             if c1.button("Lưu", key=f"ap_save_{center_name}", type="primary"):
-                saved = new_text if new_text and new_text != 0 else text
+                saved = st.session_state.get(ta_key, text)
                 ok = save_action_points(center_name, saved)
                 if ok:
                     st.success("Đã lưu!")
                     st.session_state[edit_state_key] = False
                     st.rerun()
                 else:
-                    st.error(f"Lưu thất bại. sheets_id={_user_sheets_id()}, text_len={len(saved)}")
+                    st.error("Lưu thất bại.")
             if c2.button("Hủy", key=f"ap_cancel_{center_name}"):
                 st.session_state[edit_state_key] = False
                 st.rerun()
@@ -163,9 +164,13 @@ def _render_action_points(center_name: str):
 
 
 def _rich_text_editor(key: str, initial_html: str):
-    """Rich text editor using Quill.js. Trả về HTML."""
+    """Rich text editor using Quill.js. Syncs HTML to hidden text_area via JS."""
     safe_id = key.replace(" ", "_").replace("-", "_")
     escaped = initial_html.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
+    
+    # Hidden text area to bridge JS <-> Python
+    ta_key = f"{safe_id}_ta"
+    
     html_code = f"""
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
@@ -173,7 +178,7 @@ def _rich_text_editor(key: str, initial_html: str):
     <script>
     (function() {{
         var el = document.getElementById('{safe_id}');
-        if (!el) {{ return; }}
+        if (!el) return;
         var quill = new Quill('#{safe_id}', {{
             theme: 'snow',
             modules: {{
@@ -187,22 +192,22 @@ def _rich_text_editor(key: str, initial_html: str):
             }}
         }});
         quill.root.innerHTML = `{escaped}`;
-        // Send value on change via Streamlit component protocol
-        function sendValue() {{
-            var msg = {{
-                isStreamlitMessage: true,
-                type: 'streamlit:setComponentValue',
-                value: quill.root.innerHTML
-            }};
-            window.parent.postMessage(msg, '*');
-            // Also try Streamlit global
-            if (window.Streamlit && window.Streamlit.setComponentValue) {{
-                window.Streamlit.setComponentValue(quill.root.innerHTML);
+        // Sync to parent textarea
+        function sync() {{
+            var ta = window.parent.document.querySelector('[data-testid="stTextArea"] textarea');
+            if (ta) {{
+                ta.value = quill.root.innerHTML;
+                ta.dispatchEvent(new Event('input', {{ bubbles: true }}));
             }}
         }}
-        quill.on('text-change', sendValue);
-        sendValue();
+        quill.on('text-change', sync);
+        sync();
     }})();
     </script>
     """
-    return st.components.v1.html(html_code, height=300)
+    # Render Quill + hidden text area
+    st.components.v1.html(html_code, height=300)
+    # Read from this in session_state
+    if ta_key not in st.session_state:
+        st.session_state[ta_key] = initial_html
+    st.text_area("", value=initial_html, key=ta_key, label_visibility="collapsed", height=1)
