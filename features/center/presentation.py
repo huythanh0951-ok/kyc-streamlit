@@ -125,10 +125,10 @@ def _render_action_points(center_name: str):
 
     if can_edit:
         if st.session_state[edit_state_key]:
-            new_text = st.text_area("Nhập action points (xuống dòng tự nhiên, có thể dùng **đậm**, - danh sách):", value=text, height=200, key=f"ap_text_{center_name}")
+            new_text = _rich_text_editor(f"ap_text_{center_name}", text)
             c1, c2 = st.columns([1, 4])
             if c1.button("Lưu", key=f"ap_save_{center_name}", type="primary"):
-                if save_action_points(center_name, new_text):
+                if save_action_points(center_name, new_text or text):
                     st.success("Đã lưu!")
                     st.session_state[edit_state_key] = False
                     st.rerun()
@@ -155,6 +155,44 @@ def _render_action_points(center_name: str):
             st.markdown(
                 f"""<div style="background:linear-gradient(135deg, #FFF8E1, #FFF3CD);border-radius:12px;
                 padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 2px 6px rgba(255,109,1,0.12);
-                font-size:14px;color:#333;line-height:1.8;white-space:pre-wrap;">{text}</div>""",
+                font-size:14px;color:#333;line-height:1.8;">{text}</div>""",
                 unsafe_allow_html=True,
             )
+
+
+def _rich_text_editor(key: str, initial_html: str):
+    """Rich text editor using Quill.js. Trả về HTML khi người dùng thay đổi."""
+    escaped = initial_html.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
+    html_code = f"""
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+    window.onerror = function(msg) {{ console.error('Quill error:', msg); }};
+    </script>
+    <div id="editor_{key}" style="height:220px;"></div>
+    <script>
+    function sendValue() {{
+        var html = quill.root.innerHTML;
+        window.parent.postMessage(
+            {{isStreamlitMessage: true, type: 'streamlit:setComponentValue', value: html, dataType: 'json'}},
+            '*'
+        );
+    }}
+    var quill = new Quill('#editor_{key}', {{
+        theme: 'snow',
+        modules: {{
+            toolbar: [
+                ['bold', 'italic', 'underline'],
+                [{{ 'color': [] }}, {{ 'background': [] }}],
+                [{{ 'list': 'bullet' }}],
+                ['clean']
+            ]
+        }}
+    }});
+    quill.root.innerHTML = `{escaped}`;
+    quill.on('text-change', sendValue);
+    // Initial send
+    sendValue();
+    </script>
+    """
+    return st.components.v1.html(html_code, height=300)
