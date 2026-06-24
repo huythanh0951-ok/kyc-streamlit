@@ -67,7 +67,8 @@ def load_data():
 
     # Course Simplified
     def course_simple(c):
-        if pd.isna(c): return None
+        if pd.isna(c) or str(c).strip() == "":
+            return "Tạm không có"
         orig = str(c).strip()
         uc = orig.upper()
         if "EGENIUS" in uc.replace("-", ""): return "B2C-EGENIUS"
