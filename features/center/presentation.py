@@ -125,10 +125,42 @@ def _render_action_points(center_name: str):
 
     if can_edit:
         if st.session_state[edit_state_key]:
-            new_html = _quill_editor(f"ap_{center_name.replace(' ', '_')}", text)
+            # Quick-insert buttons
+            st.caption("Bấm để chèn:")
+            bc1, bc2, bc3, bc4, bc5, bc6 = st.columns(6)
+            if bc1.button("**Đậm**", key=f"ap_bold_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<b></b> "
+                st.rerun()
+            if bc2.button("Đỏ", key=f"ap_red_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:red'></span> "
+                st.rerun()
+            if bc3.button("Xanh", key=f"ap_blue_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:#2196F3'></span> "
+                st.rerun()
+            if bc4.button("Cam", key=f"ap_orange_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:#ff6d01'></span> "
+                st.rerun()
+            if bc5.button("List", key=f"ap_list_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<ul>\n<li></li>\n<li></li>\n</ul>"
+                st.rerun()
+            if bc6.button("BR", key=f"ap_br_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<br>"
+                st.rerun()
+
+            current_val = st.session_state.get(f"ap_text_{center_name}", text)
+            new_text = st.text_area("Nội dung:", value=current_val, height=250, key=f"ap_text_{center_name}")
+            
+            # Live preview
+            if new_text.strip():
+                st.caption("Xem trước:")
+                st.markdown(f"""<div style="background:white;border-radius:10px;
+                    padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 1px 3px rgba(0,0,0,0.06);
+                    font-size:14px;color:#333;line-height:1.8;">{new_text}</div>""",
+                    unsafe_allow_html=True)
+            
             c1, c2 = st.columns([1, 4])
             if c1.button("Lưu", key=f"ap_save_{center_name}", type="primary"):
-                if new_html and save_action_points(center_name, new_html):
+                if save_action_points(center_name, new_text):
                     st.success("Đã lưu!")
                     st.session_state[edit_state_key] = False
                     st.rerun()
@@ -158,39 +190,3 @@ def _render_action_points(center_name: str):
                 font-size:14px;color:#333;line-height:1.8;">{text}</div>""",
                 unsafe_allow_html=True,
             )
-
-
-def _quill_editor(key: str, initial_html: str):
-    """Quill rich text editor - returns HTML via Streamlit component value."""
-    escaped = initial_html.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
-    html_code = f"""
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <div id="ql_{key}" style="height:220px;"></div>
-    <script>
-    var ql_{key} = new Quill('#ql_{key}', {{
-        theme: 'snow',
-        modules: {{
-            toolbar: [
-                [{{ 'font': [] }}, {{ 'size': ['small', false, 'large', 'huge'] }}],
-                ['bold', 'italic', 'underline'],
-                [{{ 'color': [] }}, {{ 'background': [] }}],
-                [{{ 'list': 'bullet' }}, {{ 'align': [] }}],
-                ['clean']
-            ]
-        }}
-    }});
-    ql_{key}.root.innerHTML = `{escaped}`;
-    var sendTimer_{key} = null;
-    ql_{key}.on('text-change', function() {{
-        clearTimeout(sendTimer_{key});
-        sendTimer_{key} = setTimeout(function() {{
-            window.parent.postMessage({{
-                type: 'streamlit:setComponentValue',
-                value: ql_{key}.root.innerHTML
-            }}, '*');
-        }}, 300);
-    }});
-    </script>
-    """
-    return st.components.v1.html(html_code, key=key, height=300)
