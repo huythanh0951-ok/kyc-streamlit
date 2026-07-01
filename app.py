@@ -53,6 +53,31 @@ st.markdown("""
     .modebar {
         display: flex !important;
     }
+    /* Print: prevent chart cutoff */
+    @media print {
+        .stPlotlyChart {
+            break-inside: avoid;
+            max-width: 100% !important;
+            page-break-inside: avoid;
+        }
+        .stPlotlyChart svg {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        div[data-testid="stElementContainer"] {
+            overflow: visible !important;
+            break-inside: avoid;
+        }
+        .main-svg {
+            max-width: 100% !important;
+        }
+        h2, h3, h4, .section-header {
+            break-after: avoid;
+        }
+        .stExpander {
+            break-inside: avoid;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 

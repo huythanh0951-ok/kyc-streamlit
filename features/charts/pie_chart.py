@@ -11,8 +11,8 @@ def create_pie_chart(df, name_col, value_col, name_display, colors, threshold_pc
     texts = [None if p < threshold_pct else f"{p:.1f}%" for p in counts["pct"]]
     fig = px.pie(counts, names="legend", values=value_col,
                  color_discrete_sequence=colors)
-    fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), dragmode=False, height=height,
-                      legend=dict(orientation="v", y=0.5, x=1.02, font=dict(size=13)),
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=50), dragmode=False, height=height,
+                      legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center", font=dict(size=13)),
                       paper_bgcolor="white")
     fig.update_traces(text=texts, textinfo='text', textposition='inside', textfont_size=14)
     return fig
@@ -28,8 +28,8 @@ def create_gender_pie(df, colors, height=130):
     texts = [None if p < 2 else f"{p:.1f}%" for p in gender_counts["pct"]]
     fig = px.pie(gender_counts, names="legend", values="Số lượng",
                  color_discrete_sequence=colors)
-    fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), dragmode=False, height=height,
-                      legend=dict(orientation="v", y=0.5, x=1.02, font=dict(size=13)),
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=50), dragmode=False, height=height,
+                      legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center", font=dict(size=13)),
                       paper_bgcolor="white")
     fig.update_traces(text=texts, textinfo='text', textposition='inside', textfont_size=14)
     return fig
@@ -44,8 +44,8 @@ def create_learning_history_pie(df, colors, height=300):
     texts = [None if p < 2 else f"{p:.1f}%" for p in counts["pct"]]
     fig = px.pie(counts, names="legend", values="Học viên",
                  color_discrete_sequence=colors)
-    fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), dragmode=False, height=height,
-                      legend=dict(orientation="v", y=0.5, x=1.02, font=dict(size=13)),
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=50), dragmode=False, height=height,
+                      legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center", font=dict(size=13)),
                       paper_bgcolor="white")
     fig.update_traces(text=texts, textinfo='text', textposition='inside', textfont_size=14)
     return fig
@@ -58,13 +58,11 @@ def create_coverage_pie(df, chart_type, colors, height=250):
     if chart_type == "parent_job":
         ph1 = df[["Parent 1 Job"]].rename(columns={"Parent 1 Job": "Job"})
         ph2 = df[["Parent 2 Job"]].rename(columns={"Parent 2 Job": "Job"})
-        # Chỉ tính row có tên PH (nếu cột tồn tại)
         if "Parent 1 Name" in df.columns:
             ph1 = ph1[df["Parent 1 Name"].notna()]
         if "Parent 2 Name" in df.columns:
             ph2 = ph2[df["Parent 2 Name"].notna()]
         all_ph = pd.concat([ph1, ph2], ignore_index=True)
-        # Lọc noise: "tổng", "total", "-", etc.
         noise = {"tổng", "tong", "total", "khác", "khong", "-", "--", ""}
         is_noise = all_ph["Job"].astype(str).str.strip().str.lower().isin(noise)
         has_info = all_ph["Job"].notna() & (all_ph["Job"] != "Không có thông tin") & ~is_noise
@@ -82,8 +80,8 @@ def create_coverage_pie(df, chart_type, colors, height=250):
     texts = [None if p < 2 else f"{p:.1f}%" for p in coverage["pct"]]
     fig = px.pie(coverage, names="legend", values="Số lượng",
                  color_discrete_sequence=colors)
-    fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), dragmode=False, height=height,
-                      legend=dict(orientation="v", y=0.5, x=1.02, font=dict(size=12)),
+    fig.update_layout(margin=dict(l=10, r=10, t=10, b=50), dragmode=False, height=height,
+                      legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center", font=dict(size=12)),
                       paper_bgcolor="white")
     fig.update_traces(text=texts, textinfo='text', textposition='inside', textfont_size=14)
     return fig
