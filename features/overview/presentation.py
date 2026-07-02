@@ -23,14 +23,14 @@ def render_overview(students, multi):
         female = students[students["Gender"] == "Female"]["Student ID"].nunique()
         total_gender = max(male + female, 1)
         st.markdown(
-            f"""<div style="background:white;border-radius:10px;padding:16px 12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06);height:148px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;">
+            f"""<div style="background:white;border-radius:8px;padding:16px 12px;text-align:center;box-shadow:0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12);height:148px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;font-family:Montserrat,sans-serif;">
                 <div style="font-size:13px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">GIỚI TÍNH</div>
                 <div style="font-size:16px;font-weight:600;color:{COLOR_PRIMARY};margin-top:6px;">Nam: {fmt_num(male)} ({male/total_gender*100:.0f}%)</div>
-                <div style="font-size:16px;font-weight:600;color:#ea4335;margin-top:2px;">Nữ: {fmt_num(female)} ({female/total_gender*100:.0f}%)</div>
+                <div style="font-size:16px;font-weight:600;color:#8b672a;margin-top:2px;">Nữ: {fmt_num(female)} ({female/total_gender*100:.0f}%)</div>
             </div>""", unsafe_allow_html=True)
     with cols[2]:
         st.markdown(
-            f"""<div style="background:white;border-radius:10px;padding:16px 12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06);height:148px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;">
+            f"""<div style="background:white;border-radius:8px;padding:16px 12px;text-align:center;box-shadow:0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12);height:148px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;font-family:Montserrat,sans-serif;">
                 <div style="font-size:13px;color:#888;text-transform:uppercase;">TUỔI TB</div>
                 <div style="font-size:29px;font-weight:700;color:{COLOR_PRIMARY};margin-top:4px;">{f"{avg_age:.1f}" if pd.notna(avg_age) else "-"}</div>
             </div>""", unsafe_allow_html=True)
@@ -66,7 +66,7 @@ def render_overview(students, multi):
         st.plotly_chart(create_horizontal_bar(multi[multi["Dimension"] == "Goal"], "Value", "Student ID", "#34a853"), config={"scrollZoom": False}, use_container_width=True)
     with col3:
         section_header("Vấn đề (Problem)")
-        st.plotly_chart(create_horizontal_bar(multi[multi["Dimension"] == "Problem"], "Value", "Student ID", "#ea4335"), config={"scrollZoom": False}, use_container_width=True)
+        st.plotly_chart(create_horizontal_bar(multi[multi["Dimension"] == "Problem"], "Value", "Student ID", "#be202f"), config={"scrollZoom": False}, use_container_width=True)
 
     # ── Row 4: Interest + Destination ──
     col1, col2 = st.columns(2)
@@ -84,7 +84,7 @@ def render_overview(students, multi):
         st.plotly_chart(create_parent_job_bar(students, COLOR_PRIMARY, height=300), config={"scrollZoom": False}, use_container_width=True)
     with col2:
         section_header("Nghề nghiệp PH")
-        st.plotly_chart(create_coverage_pie(students, "parent_job", [COLOR_PRIMARY, "#e0e0e0"], height=300), config={"scrollZoom": False}, use_container_width=True)
+        st.plotly_chart(create_coverage_pie(students, "parent_job", [COLOR_PRIMARY, "#b5914c"], height=300), config={"scrollZoom": False}, use_container_width=True)
 
     # ── Row 6: Trường học (bar + pie) ──
     col1, col2 = st.columns([2, 1])
@@ -93,7 +93,7 @@ def render_overview(students, multi):
         st.plotly_chart(create_top_n_bar(students, "School Name", COLOR_PRIMARY, height=300), config={"scrollZoom": False}, use_container_width=True)
     with col2:
         section_header("Trường học")
-        st.plotly_chart(create_coverage_pie(students, "school", [COLOR_PRIMARY, "#e0e0e0"], height=300), config={"scrollZoom": False}, use_container_width=True)
+        st.plotly_chart(create_coverage_pie(students, "school", [COLOR_PRIMARY, "#b5914c"], height=300), config={"scrollZoom": False}, use_container_width=True)
 
     # ── Row 7: Learning History ──
     section_header("Lịch sử học tập")

@@ -9,7 +9,7 @@ load_dotenv()
 
 st.set_page_config(
     page_title="KYC Dashboard",
-    page_icon="⬡",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -17,6 +17,27 @@ st.set_page_config(
 # ── CSS ──
 st.markdown("""
 <style>
+    /* VMG Brand: Montserrat typeface */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Montserrat', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+    }
+    /* Plotly SVG text */
+    svg text, svg tspan,
+    .plotly-graph-div text,
+    .js-plotly-plot text,
+    .gtitle, .xtitle, .ytitle,
+    .legendtext, .tick text {
+        font-family: 'Montserrat', sans-serif !important;
+    }
+    div[data-testid="stVerticalBlock"] {
+        gap: 1.5rem !important;
+    }
     div[data-testid="stHorizontalBlock"] {
         align-items: stretch !important;
         gap: 9px !important;
@@ -29,9 +50,9 @@ st.markdown("""
     }
     .stPlotlyChart {
         background: white;
-        border-radius: 10px;
-        padding: 9px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12);
         display: flex;
         justify-content: center;
         align-items: center;

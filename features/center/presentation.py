@@ -31,15 +31,15 @@ def render_center(students_all, multi_all, center_name):
         female = students[students["Gender"] == "Female"]["Student ID"].nunique()
         total_gender = max(male + female, 1)
         st.markdown(
-            f"""<div style="background:white;border-radius:10px;padding:16px 12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06);height:148px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;">
-                <div style="font-size:13px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">GIỚI TÍNH</div>
+            f"""<div style="background:white;border-radius:8px;padding:16px 12px;text-align:center;box-shadow:0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12);height:148px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;font-family:Montserrat,sans-serif;">
+                <div style="font-size:13px;color:rgba(0,0,0,0.6);text-transform:uppercase;letter-spacing:0.5px;font-weight:500;">GIỚI TÍNH</div>
                 <div style="font-size:16px;font-weight:600;color:{COLOR_PRIMARY};margin-top:6px;">Nam: {fmt_num(male)} ({male/total_gender*100:.0f}%)</div>
-                <div style="font-size:16px;font-weight:600;color:#ea4335;margin-top:2px;">Nữ: {fmt_num(female)} ({female/total_gender*100:.0f}%)</div>
+                <div style="font-size:16px;font-weight:600;color:#8b672a;margin-top:2px;">Nữ: {fmt_num(female)} ({female/total_gender*100:.0f}%)</div>
             </div>""", unsafe_allow_html=True)
     with cols[2]:
         st.markdown(
-            f"""<div style="background:white;border-radius:10px;padding:16px 12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06);height:148px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;">
-                <div style="font-size:13px;color:#888;text-transform:uppercase;">TUỔI TB</div>
+            f"""<div style="background:white;border-radius:8px;padding:16px 12px;text-align:center;box-shadow:0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12);height:148px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;font-family:Montserrat,sans-serif;">
+                <div style="font-size:13px;color:rgba(0,0,0,0.6);text-transform:uppercase;font-weight:500;">TUỔI TB</div>
                 <div style="font-size:29px;font-weight:700;color:{COLOR_PRIMARY};margin-top:4px;">{f"{avg_age:.1f}" if pd.notna(avg_age) else "-"}</div>
             </div>""", unsafe_allow_html=True)
     metric_card(cols[3], "CÓ Ý ĐỊNH DU HỌC", f"{fmt_num(study_abroad)} ({study_abroad/max(total_students,1)*100:.1f}%)")
@@ -72,7 +72,7 @@ def render_center(students_all, multi_all, center_name):
     col1, col2 = st.columns(2)
     with col1:
         section_header("Vấn đề (Top 5)")
-        st.plotly_chart(create_horizontal_bar(multi[multi["Dimension"] == "Problem"], "Value", "Student ID", "#ea4335", top_n=5), config={"scrollZoom": False}, use_container_width=True)
+        st.plotly_chart(create_horizontal_bar(multi[multi["Dimension"] == "Problem"], "Value", "Student ID", "#be202f", top_n=5), config={"scrollZoom": False}, use_container_width=True)
     with col2:
         section_header("Mục tiêu (Top 5)")
         st.plotly_chart(create_horizontal_bar(multi[multi["Dimension"] == "Goal"], "Value", "Student ID", "#34a853", top_n=5), config={"scrollZoom": False}, use_container_width=True)
@@ -93,7 +93,7 @@ def render_center(students_all, multi_all, center_name):
         st.plotly_chart(create_parent_job_bar(students, COLOR_PRIMARY, height=300), config={"scrollZoom": False}, use_container_width=True)
     with col2:
         section_header("Nghề nghiệp PH")
-        st.plotly_chart(create_coverage_pie(students, "parent_job", [COLOR_PRIMARY, "#e0e0e0"], height=300), config={"scrollZoom": False}, use_container_width=True)
+        st.plotly_chart(create_coverage_pie(students, "parent_job", [COLOR_PRIMARY, "#b5914c"], height=300), config={"scrollZoom": False}, use_container_width=True)
 
     # ── Row 6: Trường học (bar + pie) ──
     col1, col2 = st.columns([2, 1])
@@ -102,7 +102,7 @@ def render_center(students_all, multi_all, center_name):
         st.plotly_chart(create_top_n_bar(students, "School Name", COLOR_PRIMARY, height=300), config={"scrollZoom": False}, use_container_width=True)
     with col2:
         section_header("Trường học")
-        st.plotly_chart(create_coverage_pie(students, "school", [COLOR_PRIMARY, "#e0e0e0"], height=300), config={"scrollZoom": False}, use_container_width=True)
+        st.plotly_chart(create_coverage_pie(students, "school", [COLOR_PRIMARY, "#b5914c"], height=300), config={"scrollZoom": False}, use_container_width=True)
 
     # ── Row 7: Learning History ──
     section_header("Lịch sử học tập")
@@ -137,10 +137,10 @@ def _render_action_points(center_name: str):
                 st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:red'></span> "
                 st.rerun()
             if bc3.button("Xanh", key=f"ap_blue_{center_name}"):
-                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:#2196F3'></span> "
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:#be202f'></span> "
                 st.rerun()
             if bc4.button("Cam", key=f"ap_orange_{center_name}"):
-                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:#ff6d01'></span> "
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:#be202f'></span> "
                 st.rerun()
             if bc5.button("List", key=f"ap_list_{center_name}"):
                 st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<ul>\n<li></li>\n<li></li>\n</ul>"
@@ -155,8 +155,8 @@ def _render_action_points(center_name: str):
             # Live preview
             if new_text.strip():
                 st.caption("Xem trước:")
-                st.markdown(f"""<div style="background:white;border-radius:10px;
-                    padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 1px 3px rgba(0,0,0,0.06);
+                st.markdown(f"""<div style="background:white;border-radius:8px;
+                    padding:16px 20px;border-left:6px solid #8b672a;box-shadow:0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);font-family:Montserrat,sans-serif;
                     font-size:14px;color:#333;line-height:1.8;">{new_text}</div>""",
                     unsafe_allow_html=True)
             
@@ -174,8 +174,8 @@ def _render_action_points(center_name: str):
         else:
             if text.strip():
                 st.markdown(
-                    f"""<div style="background:white;border-radius:10px;
-                    padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 1px 3px rgba(0,0,0,0.06);
+                    f"""<div style="background:white;border-radius:8px;
+                    padding:16px 20px;border-left:6px solid #8b672a;box-shadow:0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);font-family:Montserrat,sans-serif;
                     font-size:14px;color:#333;line-height:1.8;">{text}</div>""",
                     unsafe_allow_html=True,
                 )
@@ -187,8 +187,8 @@ def _render_action_points(center_name: str):
     else:
         if text.strip():
             st.markdown(
-                f"""<div style="background:white;border-radius:10px;
-                padding:16px 20px;border-left:6px solid #ff6d01;box-shadow:0 1px 3px rgba(0,0,0,0.06);
+                f"""<div style="background:white;border-radius:8px;
+                padding:16px 20px;border-left:6px solid #8b672a;box-shadow:0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);font-family:Montserrat,sans-serif;
                 font-size:14px;color:#333;line-height:1.8;">{text}</div>""",
                 unsafe_allow_html=True,
             )

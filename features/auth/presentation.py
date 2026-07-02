@@ -17,8 +17,8 @@ def render_login() -> bool:
         f"<div style='text-align:center;margin-top:30px;'>"
         f"<img src='data:image/png;base64,{logo}' style='width:280px;'>"
         f"</div>"
-        "<h1 style='text-align:center;color:#1A3C5E;margin-top:10px;'>KYC DASHBOARD</h1>"
-        "<p style='text-align:center;color:#888;font-size:14px;'>Đăng nhập để tiếp tục</p>",
+        "<h1 style='text-align:center;color:#be202f;margin-top:10px;'>KYC DASHBOARD</h1>"
+        "<p style='text-align:center;color:rgba(0,0,0,0.6);font-size:14px;font-family:Montserrat,sans-serif;'>Đăng nhập để tiếp tục</p>",
         unsafe_allow_html=True,
     )
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -56,9 +56,9 @@ def render_sidebar_header():
     )
     st.sidebar.markdown(
         f"""<div style="padding:8px 0;border-bottom:1px solid #f0f0f0;margin-bottom:8px;">
-            <div style="font-size:11px;color:#888;">Đã đăng nhập</div>
-            <div style="font-size:14px;font-weight:600;color:#1A3C5E;">{username}</div>
-            <div style="font-size:12px;color:#2196F3;">{role.upper()} | {center_label}</div>
+            <div style="font-size:11px;color:rgba(0,0,0,0.6);font-family:Montserrat,sans-serif;">Đã đăng nhập</div>
+            <div style="font-size:14px;font-weight:600;color:#be202f;font-family:Montserrat,sans-serif;">{username}</div>
+            <div style="font-size:12px;color:#be202f;font-family:Montserrat,sans-serif;">{role.upper()} | {center_label}</div>
         </div>""",
         unsafe_allow_html=True,
     )
@@ -82,7 +82,7 @@ def render_admin_page():
         "Trần Phú", "Trảng Bom", "Võ Thị Sáu",
     ]
 
-    st.markdown("<h2 style='color:#1A3C5E;'>Quản lý Users</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-family:Montserrat,sans-serif;color:#be202f;'>Quản lý Users</h2>", unsafe_allow_html=True)
 
     # Pre-fill from edit button
     if "edit_user" not in st.session_state:
